@@ -30,12 +30,12 @@ def build_payload(use_camel: bool):
 
     if use_camel:
         configuration = {
-            'blocking': True,
+            'blocking': False,
             'pushNotificationConfig': push_cfg,
         }
     else:
         configuration = {
-            'blocking': True,
+            'blocking': False,
             'push_notification_config': push_cfg,
         }
 

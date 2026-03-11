@@ -4,6 +4,7 @@ import os
 import uuid
 
 import httpx
+from dotenv import load_dotenv
 
 from a2a.server.agent_execution import AgentExecutor, RequestContext
 from a2a.server.apps.jsonrpc.fastapi_app import A2AFastAPIApplication
@@ -29,6 +30,8 @@ from a2a.types import (
     TextPart,
 )
 
+
+load_dotenv()
 
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger('run_agent_server')

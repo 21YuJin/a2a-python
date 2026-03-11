@@ -29,7 +29,7 @@ CLOCK_SKEW_SEC = int(os.getenv('A2A_PUSH_CLOCK_SKEW_SEC', '30'))
 JTI_TTL_SEC = int(os.getenv('A2A_PUSH_JTI_TTL_SEC', '300'))
 
 # Demo: subscribed task ids (comma-separated). If empty => allow all (not recommended)
-_subscribed_raw = os.getenv('A2A_PUSH_SUBSCRIBED_TASKS', 'task-123')
+_subscribed_raw = os.getenv('A2A_PUSH_SUBSCRIBED_TASKS', '')
 SUBSCRIBED_TASKS: set[str] = set(
     t.strip() for t in _subscribed_raw.split(',') if t.strip()
 )
