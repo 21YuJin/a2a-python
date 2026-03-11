@@ -1,3 +1,4 @@
+import datetime as dt
 import logging
 import os
 import uuid
@@ -22,6 +23,9 @@ from a2a.types import (
     Message,
     Part,
     Role,
+    TaskState,
+    TaskStatus,
+    TaskStatusUpdateEvent,
     TextPart,
 )
 
@@ -30,23 +34,72 @@ logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger('run_agent_server')
 
 
+def _make_message(text: str, *, task_id: str, context_id: str) -> Message:
+    return Message(
+        message_id=str(uuid.uuid4()),
+        role=Role.agent,
+        parts=[Part(root=TextPart(text=text))],
+        task_id=task_id,
+        context_id=context_id,
+    )
+
+
+def _make_status(state: TaskState, msg: Message) -> TaskStatus:
+    # 네 버전 필드 확정: message, state, timestamp
+    return TaskStatus(
+        state=state,
+        message=msg,
+        timestamp=dt.datetime.now(dt.timezone.utc).isoformat(),
+    )
+
+
+def _make_status_event(
+    task_id: str, context_id: str, status: TaskStatus, final: bool
+) -> TaskStatusUpdateEvent:
+    # 네 버전 필드 확정: task_id, context_id, status, final (+kind/metadata는 optional)
+    return TaskStatusUpdateEvent(
+        task_id=task_id,
+        context_id=context_id,
+        status=status,
+        final=final,
+    )
+
+
 class HelloWorldExecutor(AgentExecutor):
     async def execute(
         self, context: RequestContext, event_queue: EventQueue
     ) -> None:
-        msg = Message(
-            message_id=str(uuid.uuid4()),
-            role=Role.agent,
-            parts=[Part(root=TextPart(text='Hello World'))],
-            task_id=context.task_id,
-            context_id=context.context_id,
+        # context의 task_id/context_id는 Optional일 수 있어서 보장해줌
+        task_id = context.task_id or str(uuid.uuid4())
+        context_id = context.context_id or str(uuid.uuid4())
+
+        # (1) WORKING 상태 이벤트 -> Task 생성/업데이트 트리거
+        working_msg = _make_message(
+            'Working...', task_id=task_id, context_id=context_id
         )
-        await event_queue.enqueue_event(msg)
+        working_status = _make_status(TaskState.working, working_msg)
+        await event_queue.enqueue_event(
+            _make_status_event(task_id, context_id, working_status, final=False)
+        )
+
+        # (2) 실제 응답 메시지
+        hello_msg = _make_message(
+            'Hello World', task_id=task_id, context_id=context_id
+        )
+        await event_queue.enqueue_event(hello_msg)
+
+        # (3) COMPLETED 상태 이벤트 -> 최종 상태 트리거
+        done_msg = _make_message(
+            'Completed', task_id=task_id, context_id=context_id
+        )
+        done_status = _make_status(TaskState.completed, done_msg)
+        await event_queue.enqueue_event(
+            _make_status_event(task_id, context_id, done_status, final=True)
+        )
 
     async def cancel(
         self, context: RequestContext, event_queue: EventQueue
     ) -> None:
-        # Minimal no-op cancel implementation for the demo
         return
 
 
@@ -65,7 +118,7 @@ def build_agent_card() -> AgentCard:
             AgentSkill(
                 id='hello_world',
                 name='Returns hello world',
-                description='just returns hello world',
+                description='returns hello world and emits task status updates',
                 tags=['hello world'],
                 examples=['hi', 'hello world'],
             )
@@ -98,7 +151,6 @@ def build_app():
     )
 
     a2a_app = A2AFastAPIApplication(agent_card=agent_card, http_handler=handler)
-
     return a2a_app.build()
 
 
