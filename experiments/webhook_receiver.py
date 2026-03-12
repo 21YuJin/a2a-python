@@ -66,6 +66,19 @@ async def health() -> dict[str, Any]:
     }
 
 
+@app.post('/webhook-plain')
+async def webhook_plain(request: Request) -> JSONResponse:
+    """성능 측정용 - 인증 없이 수락 (기존 BasePushNotificationSender 방식)."""
+    body = await request.body()
+    try:
+        payload = json.loads(body.decode('utf-8')) if body else {}
+    except ValueError:
+        payload = {}
+    token = request.headers.get('X-A2A-Notification-Token')
+    logger.info('📨 Plain webhook received task_id=%s token=%s', payload.get('id'), token)
+    return JSONResponse({'ok': True})
+
+
 @app.post('/webhook')
 async def webhook(request: Request):
     _require_env()
