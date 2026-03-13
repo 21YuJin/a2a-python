@@ -19,6 +19,7 @@ import asyncio
 import os
 
 import httpx
+
 from dotenv import load_dotenv
 
 from a2a.server.tasks.inmemory_push_notification_config_store import (
@@ -172,9 +173,7 @@ async def run():
             json=task_d.model_dump(mode='json', exclude_none=True),
             headers={'Authorization': f'Bearer {token_d}'},
         )
-        results.append(
-            check('Case D: 만료 토큰 (TTL=0)', r.status_code, 401)
-        )
+        results.append(check('Case D: 만료 토큰 (TTL=0)', r.status_code, 401))
 
     # ── 결과 요약 ─────────────────────────────────────────
     print('=' * 60)

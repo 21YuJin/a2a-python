@@ -18,9 +18,12 @@ import statistics
 import time
 
 import httpx
+
 from dotenv import load_dotenv
 
-from a2a.server.tasks.base_push_notification_sender import BasePushNotificationSender
+from a2a.server.tasks.base_push_notification_sender import (
+    BasePushNotificationSender,
+)
 from a2a.server.tasks.inmemory_push_notification_config_store import (
     InMemoryPushNotificationConfigStore,
 )
@@ -77,7 +80,9 @@ def stats(label: str, times: list[float]) -> None:
 async def measure_plain(client: httpx.AsyncClient) -> list[float]:
     """기존 방식: BasePushNotificationSender (토큰 없음)."""
     config_store = InMemoryPushNotificationConfigStore()
-    await config_store.set_info(TASK_ID, PushNotificationConfig(url=WEBHOOK_PLAIN_URL))
+    await config_store.set_info(
+        TASK_ID, PushNotificationConfig(url=WEBHOOK_PLAIN_URL)
+    )
     sender = BasePushNotificationSender(
         httpx_client=client,
         config_store=config_store,
@@ -94,7 +99,9 @@ async def measure_plain(client: httpx.AsyncClient) -> list[float]:
 async def measure_secure(client: httpx.AsyncClient) -> list[float]:
     """제안 방식: SecurePushNotificationSender (JWT 검증)."""
     config_store = InMemoryPushNotificationConfigStore()
-    await config_store.set_info(TASK_ID, PushNotificationConfig(url=WEBHOOK_URL))
+    await config_store.set_info(
+        TASK_ID, PushNotificationConfig(url=WEBHOOK_URL)
+    )
     sender = SecurePushNotificationSender(
         httpx_client=client,
         config_store=config_store,
@@ -136,7 +143,9 @@ async def run() -> None:
     secure_avg = statistics.mean(secure_times) * 1000
     overhead = secure_avg - plain_avg
 
-    print(f'\n오버헤드: +{overhead:.2f} ms / 요청 ({overhead / plain_avg * 100:.1f}%)')
+    print(
+        f'\n오버헤드: +{overhead:.2f} ms / 요청 ({overhead / plain_avg * 100:.1f}%)'
+    )
     print('=' * 55)
 
 
