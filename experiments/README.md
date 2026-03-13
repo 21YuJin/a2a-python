@@ -11,7 +11,7 @@ JWT 기반 서명-시점 바인딩 방어 방안을 구현·검증하는 실험 
 
 A2A v1.0 명세 §13.2는 수신 에이전트의 `task_id` 검증을 **권고(SHOULD)**하지만, 특정 인증 방식을 강제하지 않습니다. 이는 다양한 에이전트 간 상호운용성을 보장하기 위한 의도적 설계 결정입니다. 그 결과 공식 Python SDK(`BasePushNotificationSender`)는 기본적으로 `task_id` 바인딩 없이 push를 전송하며, 수신 측도 임의 태스크의 알림을 수락할 수 있는 **Task Misbinding** 취약점이 발생합니다.
 
-본 실험은 이 명세 공백을 채우는 레퍼런스 구현을 제시하고, 4가지 방어 수준의 비교 실험을 통해 "JWT 서명 단독으로는 Task Misbinding을 방지할 수 없으며, 서명 시점에 `task_id`를 클레임으로 포함하는 바인딩이 필수적"임을 실험적으로 검증합니다.
+본 실험은 이 명세 공백을 채우는 레퍼런스 구현을 제시하고, 4가지 방어 수준의 비교 실험을 통해 "수신자가 JWT의 `task_id`를 구독 목록과 대조하지 않으면 JWT 서명만으로는 Task Misbinding을 방지할 수 없으며, 서명-시점 바인딩과 수신자 측 구독 검증이 함께 갖춰져야 한다"는 것을 실험적으로 검증합니다.
 
 ---
 
@@ -89,17 +89,18 @@ POST /webhook
 > **필수 환경변수:** `A2A_PUSH_SUBSCRIBED_TASKS=task-001` 미설정 시 방식 (4)도 200을 반환하며 실험이 침묵 실패합니다.
 
 #### `test_security_cases.py`
-제안 방식(`/webhook`)에 대한 4가지 공격 시나리오 검증
+제안 방식(`/webhook`)에 대한 5가지 공격 시나리오 검증
 
-| 케이스 | 시나리오 | 기대 응답 |
-|:---:|:---|:---:|
-| A (정상) | task-001 JWT + task-001 페이로드 | 200 OK |
-| B (Task Misbinding) | task-003 JWT, 구독={task-001} | 403 Forbidden |
-| C (Replay Attack) | 동일 `jti` 재전송 | 409 Conflict |
-| D (만료 토큰) | TTL=0, 1초 후 전송 | 401 Unauthorized |
+| 케이스 | 시나리오 | 기대 응답 | 대응 단계 |
+|:---:|:---|:---:|:---:|
+| A (정상) | task-001 JWT + task-001 페이로드 | 200 OK | — |
+| B (Misbinding 변형 1) | task-003 JWT, 구독={task-001} (직접 주입) | 403 Forbidden | ⑤ |
+| C (Replay Attack) | 동일 `jti` 재전송 | 409 Conflict | ④ |
+| D (만료 토큰) | TTL=0, 1초 후 전송 | 401 Unauthorized | ② |
+| E (Misbinding 변형 2) | task-001 JWT + 위조 payload.id=task-003 (JWT 재사용) | 403 Forbidden | ⑥ |
 
 #### `test_performance.py`
-기존 방식 vs 제안 방식 지연시간 비교 (N=50회 반복)
+기존 방식 vs 제안 방식 지연시간 비교 (N=200회 반복)
 
 JWT 생성(HMAC-SHA256 + UUID)은 CPU 연산이므로 네트워크 왕복 시간 대비 미미하며,
 측정된 오버헤드는 요청당 수 ms 이하로 실용적 배포에 무시 가능한 수준입니다.
@@ -192,7 +193,7 @@ Task Misbinding 공격 — 4가지 방어 방식 비교 실험
    "서명만으로는 Task Misbinding을 막을 수 없다"  (방식 3 vs 4)
 ```
 
-### 2. 보안 케이스 4종 검증
+### 2. 보안 케이스 5종 검증
 
 ```bash
 uv run python experiments/test_security_cases.py
