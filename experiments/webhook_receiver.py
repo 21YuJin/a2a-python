@@ -37,12 +37,70 @@ SUBSCRIBED_TASKS: set[str] = set(
 # In-memory anti-replay cache: jti -> exp_time_epoch
 JTI_CACHE: dict[str, float] = {}
 
+# 방식 (2) 비교 실험용 고정 토큰
+FIXED_TOKEN = os.getenv('A2A_PUSH_FIXED_TOKEN', 'demo-fixed-token')
+
 
 def _purge_expired_jtis(now: float) -> None:
     # Simple purge to keep dict small
     expired = [jti for jti, exp in JTI_CACHE.items() if exp <= now]
     for jti in expired:
         JTI_CACHE.pop(jti, None)
+
+
+def _decode_jwt(token: str) -> dict:
+    """JWT 서명·만료·필수클레임 검증 후 claims 반환. 실패 시 HTTPException 발생."""
+    try:
+        return jwt.decode(
+            token,
+            JWT_SECRET,
+            algorithms=[JWT_ALG],
+            audience=EXPECTED_AUD,
+            issuer=EXPECTED_ISS,
+            options={
+                'require': ['exp', 'iat', 'jti'],
+                'verify_signature': True,
+                'verify_exp': True,
+                'verify_iat': False,
+                'verify_aud': True,
+                'verify_iss': True,
+            },
+        )
+    except jwt.ExpiredSignatureError as e:
+        raise HTTPException(status_code=401, detail='JWT expired') from e
+    except jwt.InvalidIssuerError as e:
+        raise HTTPException(status_code=401, detail='Invalid issuer') from e
+    except jwt.InvalidAudienceError as e:
+        raise HTTPException(status_code=401, detail='Invalid audience') from e
+    except jwt.MissingRequiredClaimError as e:
+        raise HTTPException(
+            status_code=401, detail=f'Missing required claim: {e.claim}'
+        ) from e
+    except jwt.PyJWTError as e:
+        raise HTTPException(
+            status_code=401, detail=f'JWT verification failed: {e!s}'
+        ) from e
+
+
+def _check_iat_and_jti(claims: dict) -> str:
+    """Check iat freshness and jti anti-replay; return jti or raise HTTPException."""
+    now = time.time()
+    iat = claims.get('iat')
+    if not isinstance(iat, (int, float)):
+        raise HTTPException(status_code=401, detail='iat must be a number')
+    if iat > now + CLOCK_SKEW_SEC:
+        raise HTTPException(status_code=401, detail='iat is too far in the future')
+    if iat < now - (JTI_TTL_SEC + CLOCK_SKEW_SEC):
+        raise HTTPException(status_code=401, detail='iat is too old')
+
+    _purge_expired_jtis(now)
+    jti = claims.get('jti')
+    if not isinstance(jti, str) or not jti:
+        raise HTTPException(status_code=401, detail='Invalid jti')
+    if jti in JTI_CACHE:
+        raise HTTPException(status_code=409, detail='Replay detected (jti already seen)')
+    JTI_CACHE[jti] = now + JTI_TTL_SEC
+    return jti
 
 
 def _require_env() -> None:
@@ -75,8 +133,70 @@ async def webhook_plain(request: Request) -> JSONResponse:
     except ValueError:
         payload = {}
     token = request.headers.get('X-A2A-Notification-Token')
-    logger.info('📨 Plain webhook received task_id=%s token=%s', payload.get('id'), token)
+    logger.info(
+        '📨 Plain webhook received task_id=%s token=%s',
+        payload.get('id'),
+        token,
+    )
     return JSONResponse({'ok': True})
+
+
+@app.post('/webhook-token')
+async def webhook_token(request: Request) -> JSONResponse:
+    """비교 실험용 - 방식 (2): 단순 고정 토큰만 확인, task_id 바인딩 없음."""
+    token = request.headers.get('X-A2A-Notification-Token', '')
+    if token != FIXED_TOKEN:
+        raise HTTPException(status_code=401, detail='Invalid token')
+    body = await request.body()
+    try:
+        payload = json.loads(body.decode('utf-8')) if body else {}
+    except ValueError:
+        payload = {}
+    task_id = payload.get('id', '')
+    logger.info('📨 Token webhook (no task binding): task_id=%s', task_id)
+    return JSONResponse({'ok': True, 'task_id': task_id})
+
+
+@app.post('/webhook-jwt-notask')
+async def webhook_jwt_notask(request: Request) -> JSONResponse:
+    """비교 실험용 - 방식 (3): JWT 서명 검증, task_id 바인딩 없음."""
+    _require_env()
+    auth = request.headers.get('authorization') or request.headers.get(
+        'Authorization'
+    )
+    if not auth or not auth.lower().startswith('bearer '):
+        raise HTTPException(
+            status_code=401, detail='Missing Authorization: Bearer <JWT>'
+        )
+    token = auth.split(' ', 1)[1].strip()
+    try:
+        jwt.decode(
+            token,
+            JWT_SECRET,
+            algorithms=[JWT_ALG],
+            audience=EXPECTED_AUD,
+            issuer=EXPECTED_ISS,
+            options={
+                'require': ['exp', 'iat'],
+                'verify_signature': True,
+                'verify_exp': True,
+                'verify_aud': True,
+                'verify_iss': True,
+            },
+        )
+    except jwt.ExpiredSignatureError as err:
+        raise HTTPException(status_code=401, detail='JWT expired') from err
+    except jwt.PyJWTError as e:
+        raise HTTPException(status_code=401, detail=f'JWT error: {e}') from e
+    # ❌ task_id 바인딩 검증 없음 — 이것이 방식 (3)의 취약점
+    body = await request.body()
+    try:
+        payload = json.loads(body.decode('utf-8')) if body else {}
+    except Exception:
+        payload = {}
+    task_id = payload.get('id', 'unknown')
+    logger.info('📨 JWT-notask webhook (no task binding!): task_id=%s', task_id)
+    return JSONResponse({'ok': True, 'task_id': task_id})
 
 
 @app.post('/webhook')
@@ -92,67 +212,8 @@ async def webhook(request: Request):
         )
 
     token = auth.split(' ', 1)[1].strip()
-
-    # Decode and verify JWT (HS256)
-    try:
-        # By default, PyJWT verifies exp if present.
-        claims = jwt.decode(
-            token,
-            JWT_SECRET,
-            algorithms=[JWT_ALG],
-            audience=EXPECTED_AUD,
-            issuer=EXPECTED_ISS,
-            options={
-                'require': ['exp', 'iat', 'jti'],
-                'verify_signature': True,
-                'verify_exp': True,
-                'verify_iat': False,  # we'll check iat with skew ourselves
-                'verify_aud': True,
-                'verify_iss': True,
-            },
-        )
-    except jwt.ExpiredSignatureError:
-        raise HTTPException(status_code=401, detail='JWT expired')
-    except jwt.InvalidIssuerError:
-        raise HTTPException(status_code=401, detail='Invalid issuer')
-    except jwt.InvalidAudienceError:
-        raise HTTPException(status_code=401, detail='Invalid audience')
-    except jwt.MissingRequiredClaimError as e:
-        raise HTTPException(
-            status_code=401, detail=f'Missing required claim: {e.claim}'
-        )
-    except jwt.PyJWTError as e:
-        raise HTTPException(
-            status_code=401, detail=f'JWT verification failed: {e!s}'
-        )
-
-    now = time.time()
-
-    # iat freshness check (optional but recommended)
-    iat = claims.get('iat')
-    if isinstance(iat, (int, float)):
-        # iat should not be too far in the future
-        if iat > now + CLOCK_SKEW_SEC:
-            raise HTTPException(
-                status_code=401, detail='iat is too far in the future'
-            )
-        # optionally: reject very old tokens (beyond jti ttl + skew)
-        if iat < now - (JTI_TTL_SEC + CLOCK_SKEW_SEC):
-            raise HTTPException(status_code=401, detail='iat is too old')
-    else:
-        raise HTTPException(status_code=401, detail='iat must be a number')
-
-    # Anti-replay (jti cache)
-    _purge_expired_jtis(now)
-    jti = claims.get('jti')
-    if not isinstance(jti, str) or not jti:
-        raise HTTPException(status_code=401, detail='Invalid jti')
-    if jti in JTI_CACHE:
-        raise HTTPException(
-            status_code=409, detail='Replay detected (jti already seen)'
-        )
-    # Store jti with TTL (use now + JTI_TTL_SEC)
-    JTI_CACHE[jti] = now + JTI_TTL_SEC
+    claims = _decode_jwt(token)
+    jti = _check_iat_and_jti(claims)
 
     # Task binding check
     task_id = claims.get('task_id') or claims.get('taskId')
@@ -170,6 +231,15 @@ async def webhook(request: Request):
         payload = json.loads(body.decode('utf-8')) if body else {}
     except Exception:
         payload = {'_raw': body.decode('utf-8', errors='replace')}
+
+    # Cross-check: JWT claim task_id must match payload task id
+    # Prevents stolen-JWT replay: attacker reuses JWT(task-001) with task-003 payload
+    payload_task_id = payload.get('id')
+    if payload_task_id and payload_task_id != task_id:
+        raise HTTPException(
+            status_code=403,
+            detail=f'Task misbinding: JWT task_id={task_id!r} != payload id={payload_task_id!r}',
+        )
 
     logger.info(
         '✅ Accepted webhook: iss=%s aud=%s task_id=%s jti=%s payload_keys=%s',

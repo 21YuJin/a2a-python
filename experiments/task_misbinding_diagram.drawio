@@ -1,0 +1,232 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<mxGraphModel dx="1422" dy="762" grid="0" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="0" pageScale="1" pageWidth="1200" pageHeight="840" math="0" shadow="0">
+  <root>
+    <mxCell id="0" />
+    <mxCell id="1" parent="0" />
+
+    <!-- ====================================================== -->
+    <!--  SCENARIO A : 기존 방식 — Task Misbinding 공격 성공     -->
+    <!-- ====================================================== -->
+
+    <!-- Background -->
+    <mxCell id="101" value="" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#FFF8E1;strokeColor=#F9A825;arcSize=2;strokeWidth=2;" vertex="1" parent="1">
+      <mxGeometry x="10" y="10" width="1180" height="405" as="geometry" />
+    </mxCell>
+
+    <!-- Title -->
+    <mxCell id="102" value="(a)  기존 방식 (단순 고정 토큰) — Task Misbinding 공격 성공" style="text;html=1;strokeColor=none;fillColor=none;align=left;verticalAlign=middle;fontSize=13;fontStyle=1;fontColor=#E65100;" vertex="1" parent="1">
+      <mxGeometry x="25" y="17" width="850" height="26" as="geometry" />
+    </mxCell>
+
+    <!-- ── Actors ── -->
+
+    <!-- AgentB -->
+    <mxCell id="110" value="AgentB&#xa;(송신 에이전트)" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#BBDEFB;strokeColor=#1565C0;fontSize=11;fontStyle=1;" vertex="1" parent="1">
+      <mxGeometry x="45" y="53" width="140" height="55" as="geometry" />
+    </mxCell>
+
+    <!-- Attacker -->
+    <mxCell id="111" value="⚠ 공격자&#xa;(Attacker)" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#FFCDD2;strokeColor=#C62828;fontSize=11;fontStyle=1;" vertex="1" parent="1">
+      <mxGeometry x="465" y="53" width="140" height="55" as="geometry" />
+    </mxCell>
+
+    <!-- AgentA -->
+    <mxCell id="112" value="AgentA&#xa;(수신 에이전트 / Webhook)" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#BBDEFB;strokeColor=#1565C0;fontSize=11;fontStyle=1;" vertex="1" parent="1">
+      <mxGeometry x="960" y="53" width="185" height="55" as="geometry" />
+    </mxCell>
+
+    <!-- Subscription badge on AgentA -->
+    <mxCell id="113" value="구독: { task-001 }" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#FFF9C4;strokeColor=#F9A825;fontSize=10;fontStyle=3;align=center;" vertex="1" parent="1">
+      <mxGeometry x="960" y="114" width="185" height="22" as="geometry" />
+    </mxCell>
+
+    <!-- ── Lifelines ── -->
+    <mxCell id="114" value="" style="endArrow=none;dashed=1;html=1;strokeColor=#1565C0;strokeWidth=1.5;" edge="1" parent="1">
+      <mxGeometry relative="1" as="geometry">
+        <mxPoint x="115" y="108" as="sourcePoint" />
+        <mxPoint x="115" y="408" as="targetPoint" />
+      </mxGeometry>
+    </mxCell>
+    <mxCell id="115" value="" style="endArrow=none;dashed=1;html=1;strokeColor=#C62828;strokeWidth=1.5;" edge="1" parent="1">
+      <mxGeometry relative="1" as="geometry">
+        <mxPoint x="535" y="108" as="sourcePoint" />
+        <mxPoint x="535" y="408" as="targetPoint" />
+      </mxGeometry>
+    </mxCell>
+    <mxCell id="116" value="" style="endArrow=none;dashed=1;html=1;strokeColor=#1565C0;strokeWidth=1.5;" edge="1" parent="1">
+      <mxGeometry relative="1" as="geometry">
+        <mxPoint x="1052" y="108" as="sourcePoint" />
+        <mxPoint x="1052" y="408" as="targetPoint" />
+      </mxGeometry>
+    </mxCell>
+
+    <!-- ── Step 1: Legit Push AgentB → AgentA ── -->
+    <mxCell id="120" value="① 합법적 Push 전송 (task-001)" style="text;html=1;strokeColor=none;fillColor=none;fontSize=10;fontStyle=1;fontColor=#1B5E20;align=left;" vertex="1" parent="1">
+      <mxGeometry x="115" y="144" width="280" height="18" as="geometry" />
+    </mxCell>
+    <!-- Arrow -->
+    <mxCell id="121" value="" style="endArrow=block;endFill=1;html=1;strokeColor=#2E7D32;strokeWidth=3;" edge="1" parent="1">
+      <mxGeometry relative="1" as="geometry">
+        <mxPoint x="115" y="163" as="sourcePoint" />
+        <mxPoint x="1052" y="163" as="targetPoint" />
+      </mxGeometry>
+    </mxCell>
+    <!-- Payload label (on arrow) -->
+    <mxCell id="122" value="X-A2A-Notification-Token: &quot;abc123&quot;  |  payload { id: &quot;task-001&quot; }" style="text;html=1;strokeColor=none;fillColor=#E8F5E9;align=center;fontSize=10;fontColor=#1B5E20;" vertex="1" parent="1">
+      <mxGeometry x="116" y="165" width="936" height="18" as="geometry" />
+    </mxCell>
+    <!-- AgentA accepts -->
+    <mxCell id="123" value="토큰 확인 ✓  →  task_id 검증 없음  →  200 OK" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#C8E6C9;strokeColor=#2E7D32;fontSize=10;" vertex="1" parent="1">
+      <mxGeometry x="800" y="185" width="390" height="24" as="geometry" />
+    </mxCell>
+
+    <!-- ── Token capture callout ── -->
+    <mxCell id="125" value="🔓  토큰 탈취&#xa;&#xa;&quot;abc123&quot; — 고정 문자열.&#xa;특정 task에 묶이지 않으므로&#xa;임의 task에 재사용 가능." style="rounded=1;whiteSpace=wrap;html=1;fillColor=#FFCDD2;strokeColor=#C62828;fontSize=10;align=center;" vertex="1" parent="1">
+      <mxGeometry x="370" y="215" width="270" height="90" as="geometry" />
+    </mxCell>
+
+    <!-- ── Step 2: Malicious Push Attacker → AgentA ── -->
+    <mxCell id="130" value="② 위조 Push 전송 (task-003 페이로드 + 탈취 토큰)" style="text;html=1;strokeColor=none;fillColor=none;fontSize=10;fontStyle=1;fontColor=#B71C1C;align=left;" vertex="1" parent="1">
+      <mxGeometry x="535" y="316" width="410" height="18" as="geometry" />
+    </mxCell>
+    <!-- Arrow -->
+    <mxCell id="131" value="" style="endArrow=block;endFill=1;html=1;strokeColor=#C62828;strokeWidth=3;" edge="1" parent="1">
+      <mxGeometry relative="1" as="geometry">
+        <mxPoint x="535" y="335" as="sourcePoint" />
+        <mxPoint x="1052" y="335" as="targetPoint" />
+      </mxGeometry>
+    </mxCell>
+    <!-- Payload label -->
+    <mxCell id="132" value="X-A2A-Notification-Token: &quot;abc123&quot; (탈취)  |  payload { id: &quot;task-003&quot; }  ⚠" style="text;html=1;strokeColor=none;fillColor=#FFEBEE;align=center;fontSize=10;fontColor=#B71C1C;" vertex="1" parent="1">
+      <mxGeometry x="536" y="337" width="516" height="18" as="geometry" />
+    </mxCell>
+    <!-- AgentA WRONG accept -->
+    <mxCell id="133" value="❌  토큰 확인 ✓  →  task_id 검증 없음  →  200 OK  (잘못 수락)" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#FFCDD2;strokeColor=#C62828;fontSize=10;fontStyle=1;" vertex="1" parent="1">
+      <mxGeometry x="720" y="357" width="520" height="24" as="geometry" />
+    </mxCell>
+
+    <!-- Result caption -->
+    <mxCell id="134" value="→ AgentA가 구독하지 않은 task-003 완료 이벤트를 수락 — 워크플로우 오염 (Task Misbinding 성공)" style="text;html=1;strokeColor=none;fillColor=none;fontSize=10;fontStyle=2;fontColor=#B71C1C;align=center;" vertex="1" parent="1">
+      <mxGeometry x="25" y="388" width="1150" height="18" as="geometry" />
+    </mxCell>
+
+    <!-- ====================================================== -->
+    <!--  SCENARIO B : 제안 방식 — Task Misbinding 차단          -->
+    <!-- ====================================================== -->
+
+    <!-- Background -->
+    <mxCell id="201" value="" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#E8F5E9;strokeColor=#2E7D32;arcSize=2;strokeWidth=2;" vertex="1" parent="1">
+      <mxGeometry x="10" y="425" width="1180" height="408" as="geometry" />
+    </mxCell>
+
+    <!-- Title -->
+    <mxCell id="202" value="(b)  제안 방식 (JWT · task_id 서명-시점 바인딩) — Task Misbinding 차단" style="text;html=1;strokeColor=none;fillColor=none;align=left;verticalAlign=middle;fontSize=13;fontStyle=1;fontColor=#1B5E20;" vertex="1" parent="1">
+      <mxGeometry x="25" y="432" width="950" height="26" as="geometry" />
+    </mxCell>
+
+    <!-- ── Actors ── -->
+
+    <!-- AgentB -->
+    <mxCell id="210" value="AgentB&#xa;(송신 에이전트)" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#BBDEFB;strokeColor=#1565C0;fontSize=11;fontStyle=1;" vertex="1" parent="1">
+      <mxGeometry x="45" y="468" width="140" height="55" as="geometry" />
+    </mxCell>
+
+    <!-- Attacker -->
+    <mxCell id="211" value="⚠ 공격자&#xa;(Attacker)" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#FFCDD2;strokeColor=#C62828;fontSize=11;fontStyle=1;" vertex="1" parent="1">
+      <mxGeometry x="465" y="468" width="140" height="55" as="geometry" />
+    </mxCell>
+
+    <!-- AgentA -->
+    <mxCell id="212" value="AgentA&#xa;(수신 에이전트 / Webhook)" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#BBDEFB;strokeColor=#1565C0;fontSize=11;fontStyle=1;" vertex="1" parent="1">
+      <mxGeometry x="960" y="468" width="185" height="55" as="geometry" />
+    </mxCell>
+
+    <!-- Subscription badge -->
+    <mxCell id="213" value="구독: { task-001 }" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#FFF9C4;strokeColor=#F9A825;fontSize=10;fontStyle=3;align=center;" vertex="1" parent="1">
+      <mxGeometry x="960" y="529" width="185" height="22" as="geometry" />
+    </mxCell>
+
+    <!-- ── Lifelines ── -->
+    <mxCell id="214" value="" style="endArrow=none;dashed=1;html=1;strokeColor=#1565C0;strokeWidth=1.5;" edge="1" parent="1">
+      <mxGeometry relative="1" as="geometry">
+        <mxPoint x="115" y="523" as="sourcePoint" />
+        <mxPoint x="115" y="825" as="targetPoint" />
+      </mxGeometry>
+    </mxCell>
+    <mxCell id="215" value="" style="endArrow=none;dashed=1;html=1;strokeColor=#C62828;strokeWidth=1.5;" edge="1" parent="1">
+      <mxGeometry relative="1" as="geometry">
+        <mxPoint x="535" y="523" as="sourcePoint" />
+        <mxPoint x="535" y="825" as="targetPoint" />
+      </mxGeometry>
+    </mxCell>
+    <mxCell id="216" value="" style="endArrow=none;dashed=1;html=1;strokeColor=#1565C0;strokeWidth=1.5;" edge="1" parent="1">
+      <mxGeometry relative="1" as="geometry">
+        <mxPoint x="1052" y="523" as="sourcePoint" />
+        <mxPoint x="1052" y="825" as="targetPoint" />
+      </mxGeometry>
+    </mxCell>
+
+    <!-- ── JWT Structure Box (left side, educational) ── -->
+    <mxCell id="219" value="JWT Payload (HS256 서명 적용)&#xa;{&#xa;  &quot;iss&quot;:     &quot;agentB&quot;,&#xa;  &quot;aud&quot;:     &quot;agentA-webhook&quot;,&#xa;  &quot;task_id&quot;: &quot;task-001&quot;,  ← 서명에 포함&#xa;  &quot;iat&quot;:     1710000000,&#xa;  &quot;exp&quot;:     1710000060,&#xa;  &quot;jti&quot;:     &quot;uuid-a1b2-...&quot;&#xa;}" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#E3F2FD;strokeColor=#1565C0;fontSize=10;align=left;fontFamily=Courier New;verticalAlign=top;" vertex="1" parent="1">
+      <mxGeometry x="45" y="558" width="310" height="155" as="geometry" />
+    </mxCell>
+
+    <!-- ── Step 1: Legit JWT Push AgentB → AgentA ── -->
+    <mxCell id="220" value="① 합법적 Push 전송 (JWT 포함, task-001 서명)" style="text;html=1;strokeColor=none;fillColor=none;fontSize=10;fontStyle=1;fontColor=#1B5E20;align=left;" vertex="1" parent="1">
+      <mxGeometry x="370" y="559" width="350" height="18" as="geometry" />
+    </mxCell>
+    <!-- Arrow -->
+    <mxCell id="221" value="" style="endArrow=block;endFill=1;html=1;strokeColor=#2E7D32;strokeWidth=3;" edge="1" parent="1">
+      <mxGeometry relative="1" as="geometry">
+        <mxPoint x="115" y="578" as="sourcePoint" />
+        <mxPoint x="1052" y="578" as="targetPoint" />
+      </mxGeometry>
+    </mxCell>
+    <!-- Payload label -->
+    <mxCell id="222" value="Authorization: Bearer  JWT { iss, aud, task_id:&quot;task-001&quot;, exp, jti }  ·  서명: HS256" style="text;html=1;strokeColor=none;fillColor=#E8F5E9;align=center;fontSize=10;fontColor=#1B5E20;" vertex="1" parent="1">
+      <mxGeometry x="370" y="580" width="682" height="18" as="geometry" />
+    </mxCell>
+    <!-- AgentA verification result -->
+    <mxCell id="223" value="서명 ✓  |  exp ✓  |  jti ✓  |  JWT.task_id &quot;task-001&quot; ∈ { task-001 } ✓  →  200 OK" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#C8E6C9;strokeColor=#2E7D32;fontSize=10;" vertex="1" parent="1">
+      <mxGeometry x="640" y="600" width="570" height="24" as="geometry" />
+    </mxCell>
+
+    <!-- ── Step 2: Attack Attempt Attacker → AgentA ── -->
+    <mxCell id="230" value="② 동일 공격 시도 (task-003 페이로드 전송)" style="text;html=1;strokeColor=none;fillColor=none;fontSize=10;fontStyle=1;fontColor=#B71C1C;align=left;" vertex="1" parent="1">
+      <mxGeometry x="535" y="690" width="350" height="18" as="geometry" />
+    </mxCell>
+    <!-- Arrow -->
+    <mxCell id="231" value="" style="endArrow=block;endFill=1;html=1;strokeColor=#C62828;strokeWidth=3;" edge="1" parent="1">
+      <mxGeometry relative="1" as="geometry">
+        <mxPoint x="535" y="710" as="sourcePoint" />
+        <mxPoint x="1052" y="710" as="targetPoint" />
+      </mxGeometry>
+    </mxCell>
+    <!-- Payload label -->
+    <mxCell id="232" value="JWT { task_id: &quot;task-003&quot;, HS256 서명 }  |  payload { id: &quot;task-003&quot; }" style="text;html=1;strokeColor=none;fillColor=#FFEBEE;align=center;fontSize=10;fontColor=#B71C1C;" vertex="1" parent="1">
+      <mxGeometry x="536" y="712" width="516" height="18" as="geometry" />
+    </mxCell>
+
+    <!-- AgentA verification failure box -->
+    <mxCell id="233" value="검증 결과:&#xa;JWT.task_id = &quot;task-003&quot;&#xa;구독 목록 = { task-001 }&#xa;task-003  ∉  { task-001 }  ← 바인딩 불일치" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#FFF9C4;strokeColor=#F9A825;fontSize=10;fontStyle=1;align=center;" vertex="1" parent="1">
+      <mxGeometry x="830" y="728" width="360" height="72" as="geometry" />
+    </mxCell>
+
+    <!-- 403 Forbidden response arrow: AgentA → Attacker -->
+    <mxCell id="234" value="" style="endArrow=block;endFill=1;html=1;strokeColor=#C62828;strokeWidth=2.5;dashed=1;" edge="1" parent="1">
+      <mxGeometry relative="1" as="geometry">
+        <mxPoint x="1052" y="812" as="sourcePoint" />
+        <mxPoint x="535" y="812" as="targetPoint" />
+      </mxGeometry>
+    </mxCell>
+    <mxCell id="235" value="✅  403 Forbidden  —  Task Misbinding 차단 성공" style="text;html=1;strokeColor=none;fillColor=#C8E6C9;align=center;fontSize=12;fontStyle=1;fontColor=#1B5E20;" vertex="1" parent="1">
+      <mxGeometry x="535" y="793" width="517" height="24" as="geometry" />
+    </mxCell>
+
+    <!-- ── Bottom principle caption ── -->
+    <mxCell id="240" value="핵심 원칙: task_id가 JWT claim으로 서명에 포함되므로, 공격자는 서명 키 없이 task_id를 변조하거나 다른 태스크 토큰으로 재사용 불가 (서명-시점 바인딩)" style="text;html=1;strokeColor=none;fillColor=none;fontSize=10;fontStyle=3;fontColor=#1B5E20;align=center;" vertex="1" parent="1">
+      <mxGeometry x="25" y="820" width="1150" height="18" as="geometry" />
+    </mxCell>
+
+  </root>
+</mxGraphModel>
