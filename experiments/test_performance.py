@@ -49,7 +49,7 @@ WEBHOOK_PLAIN_URL = 'http://127.0.0.1:8000/webhook-plain'
 ISS = os.getenv('A2A_PUSH_ISSUER', 'agentB')
 AUD = os.getenv('A2A_PUSH_EXPECTED_AUD', 'agentA-webhook')
 TASK_ID = 'task-001'
-REPEAT = 100
+REPEAT = 200
 
 
 def make_task(task_id: str) -> Task:
