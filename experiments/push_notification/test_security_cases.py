@@ -10,10 +10,10 @@
 
 실행 방법:
   1. webhook_receiver 서버 실행 (포트 8000):
-     uv run python -m uvicorn webhook_receiver:app --app-dir experiments --host 0.0.0.0 --port 8000
+     uv run python -m uvicorn webhook_receiver:app --app-dir experiments/push_notification --host 0.0.0.0 --port 8000
 
   2. 테스트 실행:
-     uv run python experiments/test_security_cases.py
+     uv run python experiments/push_notification/test_security_cases.py
 """
 
 import asyncio
@@ -22,7 +22,7 @@ import os
 import httpx
 from dotenv import load_dotenv
 
-from test_helpers import check, make_sender, make_task
+from experiments.push_notification.test_helpers import check, make_sender, make_task
 
 
 load_dotenv()

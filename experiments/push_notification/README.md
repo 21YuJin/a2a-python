@@ -167,18 +167,18 @@ A2A_PUSH_SUBSCRIBED_TASKS=task-001
 
 ```bash
 # .env 설정 확인
-cat experiments/.env
+cat experiments/push_notification/.env
 
 # Webhook Receiver 실행 (모든 실험의 공통 의존성)
 uv run python -m uvicorn webhook_receiver:app \
-    --app-dir experiments --host 0.0.0.0 --port 8000
+    --app-dir experiments/push_notification --host 0.0.0.0 --port 8000
 ```
 
 ### 1. 핵심 비교 실험 — 4가지 방어 방식 × Misbinding 공격
 
 ```bash
 # A2A_PUSH_SUBSCRIBED_TASKS=task-001 설정 필수
-uv run python experiments/test_comparative_misbinding.py
+uv run python experiments/push_notification/test_comparative_misbinding.py
 ```
 
 기대 출력:
@@ -212,24 +212,24 @@ Task Misbinding 공격 — 4가지 방어 방식 비교 실험
 ### 2. 보안 케이스 5종 검증
 
 ```bash
-uv run python experiments/test_security_cases.py
+uv run python experiments/push_notification/test_security_cases.py
 ```
 
 ### 3. 성능 오버헤드 측정
 
 ```bash
-uv run python experiments/test_performance.py
+uv run python experiments/push_notification/test_performance.py
 ```
 
 ### 4. 통합 흐름 확인 (에이전트 → Webhook 실제 전송)
 
 ```bash
 # 터미널 2: Agent Server
-uv run python -m uvicorn experiments.run_agent_server:app \
+uv run python -m uvicorn experiments.push_notification.run_agent_server:app \
     --host 0.0.0.0 --port 9999
 
 # 터미널 3: 클라이언트
-uv run python experiments/test_client_send.py
+uv run python experiments/push_notification/test_client_send.py
 ```
 
 ---
