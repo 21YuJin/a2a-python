@@ -86,7 +86,7 @@ POST /webhook
 | (3) | JWT 서명 (task_id 바인딩 없음) | 200 OK | 취약 |
 | (4) | JWT + task_id 서명-시점 바인딩 | **403 Forbidden** | **방어** |
 
-> **필수 환경변수:** `A2A_PUSH_SUBSCRIBED_TASKS=task-001` 미설정 시 방식 (4)도 200을 반환하며 실험이 침묵 실패합니다.
+> **필수 환경변수:** `A2A_PUSH_SUBSCRIBED_TASKS=task-001` 미설정 시 스크립트가 에러 메시지를 출력하고 조기 종료합니다.
 
 #### `test_security_cases.py`
 제안 방식(`/webhook`)에 대한 5가지 공격 시나리오 검증
@@ -98,6 +98,15 @@ POST /webhook
 | C (Replay Attack) | 동일 `jti` 재전송 | 409 Conflict | ④ |
 | D (만료 토큰) | TTL=0, 1초 후 전송 | 401 Unauthorized | ② |
 | E (Misbinding 변형 2) | task-001 JWT + 위조 payload.id=task-003 (JWT 재사용) | 403 Forbidden | ⑥ |
+
+#### `test_helpers.py`
+실험 스크립트 간 중복을 제거한 공통 헬퍼 모듈
+
+- `make_task(task_id, text)` — A2A `Task` 객체 생성
+- `make_sender(client, webhook_url, task_id, ttl)` — `SecurePushNotificationSender` 인스턴스 생성 (config_store 설정 포함)
+- `check(label, status, expected)` — HTTP 응답 코드 검증 및 결과 출력
+
+`test_security_cases.py`와 `test_comparative_misbinding.py`의 `make_task` / `make_sender` 의존성을 제공합니다.
 
 #### `test_performance.py`
 기존 방식 vs 제안 방식 지연시간 비교 (N=200회 반복)
@@ -146,6 +155,9 @@ A2A_PUSH_SUBSCRIBED_TASKS=task-001
 | `A2A_PUSH_EXPECTED_ISS` | `agentB` | Receiver 기대 `iss` |
 | `A2A_PUSH_CLOCK_SKEW_SEC` | `30` | 허용 clock skew(초) |
 | `A2A_PUSH_JTI_TTL_SEC` | `300` | Anti-replay cache TTL(초) |
+| `A2A_PUSH_JWT_ALG` | `HS256` | JWT 서명 알고리즘 (`webhook_receiver.py` 사용) |
+| `WEBHOOK_URL` | `http://127.0.0.1:8000/webhook` | 제안 방식 대상 URL (`test_security_cases.py`, `test_performance.py` 사용) |
+| `WEBHOOK_BASE_URL` | `http://127.0.0.1:8000` | Webhook 베이스 URL (`test_comparative_misbinding.py` 사용) |
 
 ---
 
@@ -189,6 +201,10 @@ Task Misbinding 공격 — 4가지 방어 방식 비교 실험
    기대=403  실측=403
 
 예측 일치: 4/4
+
+  방식 (1)(2)(3): Misbinding 성공 → 200 OK  (취약)
+  방식 (4)      : Misbinding 차단 → 403 Forbidden  (방어)
+
 ✅ 모든 방식이 예측대로 동작 — 논문 주장 실험 검증 완료
    "서명만으로는 Task Misbinding을 막을 수 없다"  (방식 3 vs 4)
 ```
