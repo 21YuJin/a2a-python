@@ -7,12 +7,14 @@ from typing import Any
 
 import jwt  # PyJWT
 
+from pathlib import Path
+
 from dotenv import load_dotenv
 from fastapi import FastAPI, HTTPException, Request
 from fastapi.responses import JSONResponse
 
 
-load_dotenv()
+load_dotenv(Path(__file__).parent.parent / '.env')
 
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger('webhook_receiver')

@@ -32,7 +32,8 @@ from a2a.types import (
 )
 
 
-load_dotenv()
+from pathlib import Path
+load_dotenv(Path(__file__).parent.parent / ".env")
 
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger('run_agent_server')

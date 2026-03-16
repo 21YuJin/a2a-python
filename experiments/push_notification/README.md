@@ -50,7 +50,7 @@ push_sender = SecurePushNotificationSender(
 
 ---
 
-### 실험 스크립트 (experiments/)
+### 실험 스크립트 (experiments/push_notification/)
 
 #### `webhook_receiver.py`
 JWT를 검증하는 FastAPI 기반 webhook 수신 서버 (port 8000)
@@ -111,8 +111,16 @@ POST /webhook
 #### `test_performance.py`
 기존 방식 vs 제안 방식 지연시간 비교 (N=200회 반복)
 
+측정 결과 (로컬호스트, N=200):
+
+| 방식 | 평균 | 중앙값 | 표준편차 |
+|---|---|---|---|
+| 기존 (`BasePushNotificationSender`) | 0.92 ms | 0.90 ms | 0.34 ms |
+| 제안 (`SecurePushNotificationSender`) | 1.09 ms | 1.07 ms | 0.16 ms |
+| **오버헤드** | **+0.17 ms (+18.0%)** | | |
+
 JWT 생성(HMAC-SHA256 + UUID)은 CPU 연산이므로 네트워크 왕복 시간 대비 미미하며,
-측정된 오버헤드는 요청당 수 ms 이하로 실용적 배포에 무시 가능한 수준입니다.
+절대 오버헤드 0.17 ms는 실용적 배포에서 무시 가능한 수준입니다.
 
 #### `run_agent_server.py`
 `SecurePushNotificationSender`를 연동한 HelloWorld 에이전트 서버 (port 9999)
@@ -122,7 +130,7 @@ JWT 생성(HMAC-SHA256 + UUID)은 CPU 연산이므로 네트워크 왕복 시간
 
 ---
 
-### 다이어그램 (experiments/)
+### 다이어그램 (experiments/push_notification/)
 
 | 파일 | 내용 |
 |---|---|
@@ -167,7 +175,7 @@ A2A_PUSH_SUBSCRIBED_TASKS=task-001
 
 ```bash
 # .env 설정 확인
-cat experiments/push_notification/.env
+cat experiments/.env
 
 # Webhook Receiver 실행 (모든 실험의 공통 의존성)
 uv run python -m uvicorn webhook_receiver:app \
@@ -178,7 +186,7 @@ uv run python -m uvicorn webhook_receiver:app \
 
 ```bash
 # A2A_PUSH_SUBSCRIBED_TASKS=task-001 설정 필수
-uv run python experiments/push_notification/test_comparative_misbinding.py
+uv run python -m experiments.push_notification.test_comparative_misbinding
 ```
 
 기대 출력:
@@ -212,13 +220,24 @@ Task Misbinding 공격 — 4가지 방어 방식 비교 실험
 ### 2. 보안 케이스 5종 검증
 
 ```bash
-uv run python experiments/push_notification/test_security_cases.py
+uv run python -m experiments.push_notification.test_security_cases
 ```
 
 ### 3. 성능 오버헤드 측정
 
 ```bash
-uv run python experiments/push_notification/test_performance.py
+uv run python -m experiments.push_notification.test_performance
+```
+
+기대 출력 (N=200, 로컬호스트):
+```
+[기존 방식 (BasePushNotificationSender)] n=200
+  평균:   0.92 ms  중앙값: 0.90 ms  표준편차: 0.34 ms
+
+[제안 방식 (SecurePushNotificationSender + JWT)] n=200
+  평균:   1.09 ms  중앙값: 1.07 ms  표준편차: 0.16 ms
+
+오버헤드: +0.17 ms / 요청 (18.0%)
 ```
 
 ### 4. 통합 흐름 확인 (에이전트 → Webhook 실제 전송)
@@ -229,7 +248,7 @@ uv run python -m uvicorn experiments.push_notification.run_agent_server:app \
     --host 0.0.0.0 --port 9999
 
 # 터미널 3: 클라이언트
-uv run python experiments/push_notification/test_client_send.py
+uv run python -m experiments.push_notification.test_client_send
 ```
 
 ---

@@ -13,11 +13,13 @@
      uv run python -m uvicorn webhook_receiver:app --app-dir experiments/push_notification --host 0.0.0.0 --port 8000
 
   2. 테스트 실행:
-     uv run python experiments/push_notification/test_security_cases.py
+     uv run python -m experiments.push_notification.test_security_cases
 """
 
 import asyncio
 import os
+
+from pathlib import Path
 
 import httpx
 from dotenv import load_dotenv
@@ -25,7 +27,7 @@ from dotenv import load_dotenv
 from experiments.push_notification.test_helpers import check, make_sender, make_task
 
 
-load_dotenv()
+load_dotenv(Path(__file__).parent.parent / '.env')
 
 WEBHOOK_URL = os.getenv('WEBHOOK_URL', 'http://127.0.0.1:8000/webhook')
 

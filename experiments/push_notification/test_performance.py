@@ -9,13 +9,15 @@
      uv run python -m uvicorn webhook_receiver:app --app-dir experiments/push_notification --host 0.0.0.0 --port 8000
 
   2. 측정 실행:
-     uv run python experiments/push_notification/test_performance.py
+     uv run python -m experiments.push_notification.test_performance
 """
 
 import asyncio
 import os
 import statistics
 import time
+
+from pathlib import Path
 
 import httpx
 
@@ -42,7 +44,7 @@ from a2a.types import (
 )
 
 
-load_dotenv()
+load_dotenv(Path(__file__).parent.parent / '.env')
 
 WEBHOOK_URL = os.getenv('WEBHOOK_URL', 'http://127.0.0.1:8000/webhook')
 WEBHOOK_PLAIN_URL = 'http://127.0.0.1:8000/webhook-plain'
