@@ -1,0 +1,141 @@
+<mxfile host="app.diagrams.net">
+  <diagram id="d1" name="Task Misbinding 시나리오">
+    <mxGraphModel dx="1100" dy="750" grid="0" gridSize="10" guides="0" tooltips="1" connect="0" arrows="1" fold="0" page="0" pageScale="1" pageWidth="860" pageHeight="680" math="0" shadow="0">
+      <root>
+        <mxCell id="0"/>
+        <mxCell id="1" parent="0"/>
+
+        <!-- ===== ACTOR BOXES ===== -->
+        <mxCell id="act_b" value="AgentB (Sender)" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#dae8fc;strokeColor=#6c8ebf;fontSize=13;fontStyle=1;align=center;" vertex="1" parent="1">
+          <mxGeometry x="62" y="12" width="150" height="50" as="geometry"/>
+        </mxCell>
+        <mxCell id="act_att" value="Attacker" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#f8cecc;strokeColor=#b85450;fontSize=13;fontStyle=1;align=center;" vertex="1" parent="1">
+          <mxGeometry x="368" y="12" width="150" height="50" as="geometry"/>
+        </mxCell>
+        <mxCell id="act_a" value="AgentA (Receiver)" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#dae8fc;strokeColor=#6c8ebf;fontSize=13;fontStyle=1;align=center;" vertex="1" parent="1">
+          <mxGeometry x="650" y="12" width="165" height="50" as="geometry"/>
+        </mxCell>
+
+        <!-- ===== LIFELINES (dashed) ===== -->
+        <mxCell id="ll_b" value="" style="endArrow=none;dashed=1;html=1;strokeColor=#6c8ebf;strokeWidth=1.5;" edge="1" parent="1">
+          <mxGeometry as="geometry">
+            <mxPoint x="137" y="62" as="sourcePoint"/>
+            <mxPoint x="137" y="670" as="targetPoint"/>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="ll_att" value="" style="endArrow=none;dashed=1;html=1;strokeColor=#b85450;strokeWidth=1.5;" edge="1" parent="1">
+          <mxGeometry as="geometry">
+            <mxPoint x="443" y="62" as="sourcePoint"/>
+            <mxPoint x="443" y="670" as="targetPoint"/>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="ll_a" value="" style="endArrow=none;dashed=1;html=1;strokeColor=#6c8ebf;strokeWidth=1.5;" edge="1" parent="1">
+          <mxGeometry as="geometry">
+            <mxPoint x="732" y="62" as="sourcePoint"/>
+            <mxPoint x="732" y="670" as="targetPoint"/>
+          </mxGeometry>
+        </mxCell>
+
+        <!-- ======================================= -->
+        <!-- (a) 정상 요청                            -->
+        <!-- ======================================= -->
+        <mxCell id="hdr_a" value="(a)  정상 요청  —  AgentA 구독: { task-X }" style="text;html=1;strokeColor=#6c8ebf;fillColor=#EBF4FF;align=left;verticalAlign=middle;spacingLeft=10;fontSize=12;fontStyle=1;rounded=1;" vertex="1" parent="1">
+          <mxGeometry x="10" y="72" width="838" height="26" as="geometry"/>
+        </mxCell>
+
+        <!-- (a) AgentB → AgentA -->
+        <mxCell id="msg_a" value="JWT { task_id: task-X, iat, exp, jti } + payload { id: task-X }" style="html=1;strokeWidth=2;strokeColor=#0066CC;fontSize=11;align=center;labelBackgroundColor=#FFFFFF;endArrow=open;endFill=1;exitX=1;exitY=0.5;" edge="1" parent="1">
+          <mxGeometry as="geometry">
+            <mxPoint x="137" y="130" as="sourcePoint"/>
+            <mxPoint x="732" y="130" as="targetPoint"/>
+          </mxGeometry>
+        </mxCell>
+
+        <!-- (a) Result -->
+        <mxCell id="res_a" value="&#x2713;  task-X &#x2208; { task-X }  &#x2192;  200 OK" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#d5e8d4;strokeColor=#82b366;fontSize=11;fontStyle=1;align=center;" vertex="1" parent="1">
+          <mxGeometry x="630" y="146" width="210" height="32" as="geometry"/>
+        </mxCell>
+
+        <!-- ===== DIVIDER 1 ===== -->
+        <mxCell id="div1" value="" style="endArrow=none;html=1;strokeColor=#888888;strokeWidth=1;" edge="1" parent="1">
+          <mxGeometry as="geometry">
+            <mxPoint x="10" y="200" as="sourcePoint"/>
+            <mxPoint x="848" y="200" as="targetPoint"/>
+          </mxGeometry>
+        </mxCell>
+
+        <!-- ======================================= -->
+        <!-- (b) 변형 1: 직접 주입                   -->
+        <!-- ======================================= -->
+        <mxCell id="hdr_b" value="(b)  변형 1: 직접 주입  —  AgentA 구독: { task-Y },  공격자 JWT: task-X  (자신의 합법적 JWT)" style="text;html=1;strokeColor=#b85450;fillColor=#FFF0EE;align=left;verticalAlign=middle;spacingLeft=10;fontSize=12;fontStyle=1;rounded=1;" vertex="1" parent="1">
+          <mxGeometry x="10" y="208" width="838" height="26" as="geometry"/>
+        </mxCell>
+
+        <!-- (b) Attacker → AgentA -->
+        <mxCell id="msg_b" value="JWT { task_id: task-X } + payload { id: task-X }" style="html=1;strokeWidth=2;strokeColor=#CC0000;fontSize=11;align=center;labelBackgroundColor=#FFFFFF;endArrow=open;endFill=1;" edge="1" parent="1">
+          <mxGeometry as="geometry">
+            <mxPoint x="443" y="298" as="sourcePoint"/>
+            <mxPoint x="732" y="298" as="targetPoint"/>
+          </mxGeometry>
+        </mxCell>
+
+        <!-- (b) Result -->
+        <mxCell id="res_b" value="&#x2717;  task-X &#x2209; { task-Y }  &#x2192;  403 Forbidden" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#f8cecc;strokeColor=#b85450;fontSize=11;fontStyle=1;align=center;" vertex="1" parent="1">
+          <mxGeometry x="622" y="316" width="218" height="32" as="geometry"/>
+        </mxCell>
+
+        <!-- (b) Annotation -->
+        <mxCell id="ann_b" value="수신자 구독 목록 대조(단계 ⑤)에서 차단" style="text;html=1;strokeColor=none;fillColor=none;align=left;fontSize=11;fontStyle=2;" vertex="1" parent="1">
+          <mxGeometry x="18" y="310" width="370" height="22" as="geometry"/>
+        </mxCell>
+
+        <!-- ===== DIVIDER 2 ===== -->
+        <mxCell id="div2" value="" style="endArrow=none;html=1;strokeColor=#888888;strokeWidth=1;" edge="1" parent="1">
+          <mxGeometry as="geometry">
+            <mxPoint x="10" y="370" as="sourcePoint"/>
+            <mxPoint x="848" y="370" as="targetPoint"/>
+          </mxGeometry>
+        </mxCell>
+
+        <!-- ======================================= -->
+        <!-- (c) 변형 2: JWT 재사용                  -->
+        <!-- ======================================= -->
+        <mxCell id="hdr_c" value="(c)  변형 2: JWT 재사용  —  AgentA 구독: { task-Y },  도청 JWT: task-Y  (payload 위조)" style="text;html=1;strokeColor=#b85450;fillColor=#FFF0EE;align=left;verticalAlign=middle;spacingLeft=10;fontSize=12;fontStyle=1;rounded=1;" vertex="1" parent="1">
+          <mxGeometry x="10" y="378" width="838" height="26" as="geometry"/>
+        </mxCell>
+
+        <!-- (c) Step 1: 도청 (AgentB lifeline → Attacker) -->
+        <mxCell id="msg_c1" value="도청: JWT { task_id: task-Y, exp, jti }" style="html=1;strokeWidth=1.5;strokeColor=#888888;dashed=1;fontSize=11;align=center;labelBackgroundColor=#FFFFFF;endArrow=open;endFill=1;fontStyle=2;" edge="1" parent="1">
+          <mxGeometry as="geometry">
+            <mxPoint x="137" y="440" as="sourcePoint"/>
+            <mxPoint x="443" y="440" as="targetPoint"/>
+          </mxGeometry>
+        </mxCell>
+
+        <!-- (c) Attacker action note -->
+        <mxCell id="note_c" value="payload.id &#x2192; task-X 로 위조" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#fff2cc;strokeColor=#d6b656;fontSize=11;fontStyle=1;align=center;" vertex="1" parent="1">
+          <mxGeometry x="346" y="460" width="195" height="30" as="geometry"/>
+        </mxCell>
+
+        <!-- (c) Step 2: Attacker → AgentA (forged) -->
+        <mxCell id="msg_c2" value="JWT { task_id: task-Y } [도청]  +  payload { id: task-X } [위조]" style="html=1;strokeWidth=2;strokeColor=#CC0000;fontSize=11;align=center;labelBackgroundColor=#FFFFFF;endArrow=open;endFill=1;" edge="1" parent="1">
+          <mxGeometry as="geometry">
+            <mxPoint x="443" y="530" as="sourcePoint"/>
+            <mxPoint x="732" y="530" as="targetPoint"/>
+          </mxGeometry>
+        </mxCell>
+
+        <!-- (c) Result -->
+        <mxCell id="res_c" value="&#x2717;  JWT.task_id(task-Y) &#x2260; payload.id(task-X)  &#x2192;  403" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#f8cecc;strokeColor=#b85450;fontSize=11;fontStyle=1;align=center;" vertex="1" parent="1">
+          <mxGeometry x="603" y="548" width="245" height="32" as="geometry"/>
+        </mxCell>
+
+        <!-- (c) Annotation -->
+        <mxCell id="ann_c" value="JWT.task_id ↔ payload.id 교차 검증(단계 ⑥)에서 차단" style="text;html=1;strokeColor=none;fillColor=none;align=left;fontSize=11;fontStyle=2;" vertex="1" parent="1">
+          <mxGeometry x="18" y="546" width="420" height="22" as="geometry"/>
+        </mxCell>
+
+      </root>
+    </mxGraphModel>
+  </diagram>
+</mxfile>

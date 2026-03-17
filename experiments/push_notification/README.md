@@ -281,6 +281,6 @@ uv run python -m experiments.push_notification.test_client_send
 
 ## 실험 환경
 
-- Python 3.12.12 / a2a-sdk v0.3.25 / PyJWT 2.x / FastAPI
+- Python 3.12.12 / a2a-sdk 0.3.25 / PyJWT 2.x / FastAPI 0.135.1
 - OS: Windows 11 Home 10.0.26200
-- 실험 설정: HS256, TTL=60초, `A2A_PUSH_SUBSCRIBED_TASKS=task-001`
+- 실험 설정: HS256, JWT TTL=60초, 구독 목록 `{task-001}`
