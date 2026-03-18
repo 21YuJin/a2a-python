@@ -1,6 +1,6 @@
 <mxfile host="app.diagrams.net">
   <diagram id="d1" name="Task Misbinding 시나리오">
-    <mxGraphModel dx="1100" dy="750" grid="0" gridSize="10" guides="0" tooltips="1" connect="0" arrows="1" fold="0" page="0" pageScale="1" pageWidth="860" pageHeight="680" math="0" shadow="0">
+    <mxGraphModel dx="1100" dy="750" grid="0" gridSize="10" guides="0" tooltips="1" connect="0" arrows="1" fold="0" page="0" pageScale="1" pageWidth="860" pageHeight="650" math="0" shadow="0">
       <root>
         <mxCell id="0"/>
         <mxCell id="1" parent="0"/>
@@ -20,19 +20,19 @@
         <mxCell id="ll_b" value="" style="endArrow=none;dashed=1;html=1;strokeColor=#6c8ebf;strokeWidth=1.5;" edge="1" parent="1">
           <mxGeometry as="geometry">
             <mxPoint x="137" y="62" as="sourcePoint"/>
-            <mxPoint x="137" y="670" as="targetPoint"/>
+            <mxPoint x="137" y="640" as="targetPoint"/>
           </mxGeometry>
         </mxCell>
         <mxCell id="ll_att" value="" style="endArrow=none;dashed=1;html=1;strokeColor=#b85450;strokeWidth=1.5;" edge="1" parent="1">
           <mxGeometry as="geometry">
             <mxPoint x="443" y="62" as="sourcePoint"/>
-            <mxPoint x="443" y="670" as="targetPoint"/>
+            <mxPoint x="443" y="640" as="targetPoint"/>
           </mxGeometry>
         </mxCell>
         <mxCell id="ll_a" value="" style="endArrow=none;dashed=1;html=1;strokeColor=#6c8ebf;strokeWidth=1.5;" edge="1" parent="1">
           <mxGeometry as="geometry">
             <mxPoint x="732" y="62" as="sourcePoint"/>
-            <mxPoint x="732" y="670" as="targetPoint"/>
+            <mxPoint x="732" y="640" as="targetPoint"/>
           </mxGeometry>
         </mxCell>
 
@@ -71,6 +71,11 @@
           <mxGeometry x="10" y="208" width="838" height="26" as="geometry"/>
         </mxCell>
 
+        <!-- (b) NEW: 공격자 합법 JWT 보유 노트 -->
+        <mxCell id="note_b" value="합법 JWT 보유: task-X" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#fff2cc;strokeColor=#d6b656;fontSize=11;fontStyle=1;align=center;" vertex="1" parent="1">
+          <mxGeometry x="341" y="246" width="204" height="28" as="geometry"/>
+        </mxCell>
+
         <!-- (b) Attacker → AgentA -->
         <mxCell id="msg_b" value="JWT { task_id: task-X } + payload { id: task-X }" style="html=1;strokeWidth=2;strokeColor=#CC0000;fontSize=11;align=center;labelBackgroundColor=#FFFFFF;endArrow=open;endFill=1;" edge="1" parent="1">
           <mxGeometry as="geometry">
@@ -84,16 +89,16 @@
           <mxGeometry x="622" y="316" width="218" height="32" as="geometry"/>
         </mxCell>
 
-        <!-- (b) Annotation -->
-        <mxCell id="ann_b" value="수신자 구독 목록 대조(단계 ⑤)에서 차단" style="text;html=1;strokeColor=none;fillColor=none;align=left;fontSize=11;fontStyle=2;" vertex="1" parent="1">
-          <mxGeometry x="18" y="310" width="370" height="22" as="geometry"/>
+        <!-- (b) Annotation MOVED: below res_b, right-aligned -->
+        <mxCell id="ann_b" value="&#x2192; 수신자 구독 목록 대조(단계 &#x2465;)에서 차단" style="text;html=1;strokeColor=#b85450;fillColor=#FFF0EE;align=center;verticalAlign=middle;fontSize=10;fontStyle=2;rounded=1;" vertex="1" parent="1">
+          <mxGeometry x="618" y="352" width="232" height="20" as="geometry"/>
         </mxCell>
 
         <!-- ===== DIVIDER 2 ===== -->
         <mxCell id="div2" value="" style="endArrow=none;html=1;strokeColor=#888888;strokeWidth=1;" edge="1" parent="1">
           <mxGeometry as="geometry">
-            <mxPoint x="10" y="370" as="sourcePoint"/>
-            <mxPoint x="848" y="370" as="targetPoint"/>
+            <mxPoint x="10" y="384" as="sourcePoint"/>
+            <mxPoint x="848" y="384" as="targetPoint"/>
           </mxGeometry>
         </mxCell>
 
@@ -101,38 +106,38 @@
         <!-- (c) 변형 2: JWT 재사용                  -->
         <!-- ======================================= -->
         <mxCell id="hdr_c" value="(c)  변형 2: JWT 재사용  —  AgentA 구독: { task-Y },  도청 JWT: task-Y  (payload 위조)" style="text;html=1;strokeColor=#b85450;fillColor=#FFF0EE;align=left;verticalAlign=middle;spacingLeft=10;fontSize=12;fontStyle=1;rounded=1;" vertex="1" parent="1">
-          <mxGeometry x="10" y="378" width="838" height="26" as="geometry"/>
+          <mxGeometry x="10" y="392" width="838" height="26" as="geometry"/>
         </mxCell>
 
         <!-- (c) Step 1: 도청 (AgentB lifeline → Attacker) -->
         <mxCell id="msg_c1" value="도청: JWT { task_id: task-Y, exp, jti }" style="html=1;strokeWidth=1.5;strokeColor=#888888;dashed=1;fontSize=11;align=center;labelBackgroundColor=#FFFFFF;endArrow=open;endFill=1;fontStyle=2;" edge="1" parent="1">
           <mxGeometry as="geometry">
-            <mxPoint x="137" y="440" as="sourcePoint"/>
-            <mxPoint x="443" y="440" as="targetPoint"/>
+            <mxPoint x="137" y="452" as="sourcePoint"/>
+            <mxPoint x="443" y="452" as="targetPoint"/>
           </mxGeometry>
         </mxCell>
 
         <!-- (c) Attacker action note -->
         <mxCell id="note_c" value="payload.id &#x2192; task-X 로 위조" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#fff2cc;strokeColor=#d6b656;fontSize=11;fontStyle=1;align=center;" vertex="1" parent="1">
-          <mxGeometry x="346" y="460" width="195" height="30" as="geometry"/>
+          <mxGeometry x="346" y="472" width="195" height="30" as="geometry"/>
         </mxCell>
 
         <!-- (c) Step 2: Attacker → AgentA (forged) -->
         <mxCell id="msg_c2" value="JWT { task_id: task-Y } [도청]  +  payload { id: task-X } [위조]" style="html=1;strokeWidth=2;strokeColor=#CC0000;fontSize=11;align=center;labelBackgroundColor=#FFFFFF;endArrow=open;endFill=1;" edge="1" parent="1">
           <mxGeometry as="geometry">
-            <mxPoint x="443" y="530" as="sourcePoint"/>
-            <mxPoint x="732" y="530" as="targetPoint"/>
+            <mxPoint x="443" y="542" as="sourcePoint"/>
+            <mxPoint x="732" y="542" as="targetPoint"/>
           </mxGeometry>
         </mxCell>
 
         <!-- (c) Result -->
         <mxCell id="res_c" value="&#x2717;  JWT.task_id(task-Y) &#x2260; payload.id(task-X)  &#x2192;  403" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#f8cecc;strokeColor=#b85450;fontSize=11;fontStyle=1;align=center;" vertex="1" parent="1">
-          <mxGeometry x="603" y="548" width="245" height="32" as="geometry"/>
+          <mxGeometry x="603" y="560" width="245" height="32" as="geometry"/>
         </mxCell>
 
-        <!-- (c) Annotation -->
-        <mxCell id="ann_c" value="JWT.task_id ↔ payload.id 교차 검증(단계 ⑥)에서 차단" style="text;html=1;strokeColor=none;fillColor=none;align=left;fontSize=11;fontStyle=2;" vertex="1" parent="1">
-          <mxGeometry x="18" y="546" width="420" height="22" as="geometry"/>
+        <!-- (c) Annotation MOVED: below res_c, right-aligned -->
+        <mxCell id="ann_c" value="&#x2192; JWT.task_id &#x2194; payload.id 교차 검증(단계 &#x2466;)에서 차단" style="text;html=1;strokeColor=#b85450;fillColor=#FFF0EE;align=center;verticalAlign=middle;fontSize=10;fontStyle=2;rounded=1;" vertex="1" parent="1">
+          <mxGeometry x="598" y="596" width="252" height="20" as="geometry"/>
         </mxCell>
 
       </root>
