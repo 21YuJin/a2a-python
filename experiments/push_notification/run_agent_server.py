@@ -16,6 +16,7 @@ from a2a.server.tasks.inmemory_push_notification_config_store import (
 )
 from a2a.server.tasks.inmemory_task_store import InMemoryTaskStore
 from a2a.server.tasks.secure_push_notification_sender import (
+    JWTConfig,
     SecurePushNotificationSender,
 )
 from a2a.types import (
@@ -143,9 +144,11 @@ def build_app():
     push_sender = SecurePushNotificationSender(
         httpx_client=http_client,
         config_store=push_config_store,
-        issuer=os.getenv('A2A_PUSH_ISSUER', 'agentB'),
-        audience=os.getenv('A2A_PUSH_AUDIENCE', 'agentA-webhook'),
-        ttl_seconds=int(os.getenv('A2A_PUSH_TOKEN_TTL', '60')),
+        jwt_config=JWTConfig(
+            issuer=os.getenv('A2A_PUSH_ISSUER', 'agentB'),
+            audience=os.getenv('A2A_PUSH_AUDIENCE', 'agentA-webhook'),
+            ttl_seconds=int(os.getenv('A2A_PUSH_TOKEN_TTL', '60')),
+        ),
     )
 
     handler = DefaultRequestHandler(

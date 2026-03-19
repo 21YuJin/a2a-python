@@ -38,6 +38,7 @@ from a2a.server.tasks.inmemory_push_notification_config_store import (
     InMemoryPushNotificationConfigStore,
 )
 from a2a.server.tasks.secure_push_notification_sender import (
+    JWTConfig,
     SecurePushNotificationSender,
 )
 from a2a.types import PushNotificationConfig
@@ -112,11 +113,9 @@ async def run() -> None:
         sender = SecurePushNotificationSender(
             httpx_client=client,
             config_store=config_store,
-            issuer=ISS,
-            audience=AUD,
-            ttl_seconds=60,
+            jwt_config=JWTConfig(issuer=ISS, audience=AUD, ttl_seconds=60),
         )
-        token_attack = sender._make_jwt(attack_task)  # JWT.task_id=task-003
+        token_attack = sender._make_jwt(attack_task, f'{BASE_URL}/webhook')  # JWT.task_id=task-003
 
         # ── 방식 (3): JWT 서명 검증, task_id 바인딩 없음 ─────────────────
         # 수신 측이 JWT 서명만 확인하고 task_id를 구독 목록과 대조하지 않아

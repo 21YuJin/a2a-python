@@ -55,7 +55,7 @@ async def run():
         # ── 케이스 A: 정상 요청 ──────────────────────────────
         # task-001 JWT + task-001 페이로드 → 200 OK
         task_a = make_task(SUBSCRIBED_TASK_ID)
-        token_a = sender._make_jwt(task_a)
+        token_a = sender._make_jwt(task_a, WEBHOOK_URL)
         r = await client.post(
             WEBHOOK_URL,
             json=task_a.model_dump(mode='json', exclude_none=True),
@@ -67,7 +67,7 @@ async def run():
         # 공격자가 task-003 JWT를 합법적으로 발급받아 task-001 구독자에게 전송.
         # 수신자의 구독 목록 대조(단계 ⑤)로 차단.
         task_b = make_task(OTHER_TASK_ID)
-        token_b = sender._make_jwt(task_b)
+        token_b = sender._make_jwt(task_b, WEBHOOK_URL)
         r = await client.post(
             WEBHOOK_URL,
             json=task_b.model_dump(mode='json', exclude_none=True),
@@ -84,7 +84,7 @@ async def run():
         # ── 케이스 C: Replay Attack ───────────────────────────
         # 정상 JWT를 캡처 후 동일 jti로 재전송 → jti 캐시(단계 ④)로 차단.
         task_c = make_task(SUBSCRIBED_TASK_ID)
-        token_c = sender._make_jwt(task_c)
+        token_c = sender._make_jwt(task_c, WEBHOOK_URL)
         await client.post(
             WEBHOOK_URL,
             json=task_c.model_dump(mode='json', exclude_none=True),
@@ -101,7 +101,7 @@ async def run():
         # TTL=0으로 발급된 JWT를 1초 후 전송 → exp 검증(단계 ②)으로 차단.
         sender_expired = await make_sender(client, WEBHOOK_URL, SUBSCRIBED_TASK_ID, ttl=0)
         task_d = make_task(SUBSCRIBED_TASK_ID)
-        token_d = sender_expired._make_jwt(task_d)
+        token_d = sender_expired._make_jwt(task_d, WEBHOOK_URL)
         await asyncio.sleep(1)
         r = await client.post(
             WEBHOOK_URL,
@@ -115,7 +115,7 @@ async def run():
         # task-001 JWT는 그대로 두고 페이로드의 id만 task-003으로 위조하여 전송.
         # JWT.task_id(task-001) ≠ payload.id(task-003) → 교차 검증(단계 ⑥)으로 차단.
         task_e_legit = make_task(SUBSCRIBED_TASK_ID)
-        token_e = sender._make_jwt(task_e_legit)  # 합법 JWT: task_id=task-001
+        token_e = sender._make_jwt(task_e_legit, WEBHOOK_URL)  # 합법 JWT: task_id=task-001
         forged_payload = make_task(OTHER_TASK_ID).model_dump(mode='json', exclude_none=True)  # 위조 payload: id=task-003
         r = await client.post(
             WEBHOOK_URL,

@@ -30,6 +30,7 @@ from a2a.server.tasks.inmemory_push_notification_config_store import (
     InMemoryPushNotificationConfigStore,
 )
 from a2a.server.tasks.secure_push_notification_sender import (
+    JWTConfig,
     SecurePushNotificationSender,
 )
 from a2a.types import (
@@ -107,9 +108,7 @@ async def measure_secure(client: httpx.AsyncClient) -> list[float]:
     sender = SecurePushNotificationSender(
         httpx_client=client,
         config_store=config_store,
-        issuer=ISS,
-        audience=AUD,
-        ttl_seconds=60,
+        jwt_config=JWTConfig(issuer=ISS, audience=AUD, ttl_seconds=60),
     )
     times = []
     for _ in range(REPEAT):
