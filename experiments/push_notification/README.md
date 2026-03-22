@@ -21,7 +21,7 @@ A2A v1.0 명세 §13.2는 수신 에이전트의 `task_id` 검증을 **권고(SH
 test_client_send.py
     └─► Agent Server (port 9999)          run_agent_server.py
               └─► SecurePushNotificationSender
-                        └─► Webhook Receiver (port 8000)    webhook_receiver.py
+                        └─► Webhook Receiver (port 8000)    secure_webhook_receiver.py
                                   └─► JWT 검증 + task_id 바인딩 + replay 방지
 ```
 
@@ -52,7 +52,7 @@ push_sender = SecurePushNotificationSender(
 
 ### 실험 스크립트 (experiments/push_notification/)
 
-#### `webhook_receiver.py`
+#### `secure_webhook_receiver.py`
 JWT를 검증하는 FastAPI 기반 webhook 수신 서버 (port 8000)
 
 | 엔드포인트 | 설명 | 방어 수준 |
@@ -163,7 +163,7 @@ A2A_PUSH_SUBSCRIBED_TASKS=task-001
 | `A2A_PUSH_EXPECTED_ISS` | `agentB` | Receiver 기대 `iss` |
 | `A2A_PUSH_CLOCK_SKEW_SEC` | `30` | 허용 clock skew(초) |
 | `A2A_PUSH_JTI_TTL_SEC` | `300` | Anti-replay cache TTL(초) |
-| `A2A_PUSH_JWT_ALG` | `HS256` | JWT 서명 알고리즘 (`webhook_receiver.py` 사용) |
+| `A2A_PUSH_JWT_ALG` | `HS256` | JWT 서명 알고리즘 (`secure_webhook_receiver.py` 사용) |
 | `WEBHOOK_URL` | `http://127.0.0.1:8000/webhook` | 제안 방식 대상 URL (`test_security_cases.py`, `test_performance.py` 사용) |
 | `WEBHOOK_BASE_URL` | `http://127.0.0.1:8000` | Webhook 베이스 URL (`test_comparative_misbinding.py` 사용) |
 
@@ -178,7 +178,7 @@ A2A_PUSH_SUBSCRIBED_TASKS=task-001
 cat experiments/.env
 
 # Webhook Receiver 실행 (모든 실험의 공통 의존성)
-uv run python -m uvicorn webhook_receiver:app \
+uv run python -m uvicorn secure_webhook_receiver:app \
     --app-dir experiments/push_notification --host 0.0.0.0 --port 8000
 ```
 

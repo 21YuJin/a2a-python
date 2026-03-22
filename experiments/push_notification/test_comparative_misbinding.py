@@ -19,8 +19,8 @@
      A2A_PUSH_JWT_SECRET=your-secret
      A2A_PUSH_SUBSCRIBED_TASKS=task-001   ← 필수: 미설정 시 방식 (4) 방어 불가
 
-  2. webhook_receiver 서버 실행 (포트 8000):
-     uv run python -m uvicorn webhook_receiver:app --app-dir experiments/push_notification --host 0.0.0.0 --port 8000
+  2. secure_webhook_receiver 서버 실행 (포트 8000):
+     uv run python -m uvicorn secure_webhook_receiver:app --app-dir experiments/push_notification --host 0.0.0.0 --port 8000
 
   3. 실험 실행:
      uv run python -m experiments.push_notification.test_comparative_misbinding

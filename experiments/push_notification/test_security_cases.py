@@ -9,8 +9,8 @@
 케이스 E: Task Misbinding (변형 2: JWT 재사용) → 403 Forbidden
 
 실행 방법:
-  1. webhook_receiver 서버 실행 (포트 8000):
-     uv run python -m uvicorn webhook_receiver:app --app-dir experiments/push_notification --host 0.0.0.0 --port 8000
+  1. secure_webhook_receiver 서버 실행 (포트 8000):
+     uv run python -m uvicorn secure_webhook_receiver:app --app-dir experiments/push_notification --host 0.0.0.0 --port 8000
 
   2. 테스트 실행:
      uv run python -m experiments.push_notification.test_security_cases
