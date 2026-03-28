@@ -1,0 +1,51 @@
+<mxfile host="app.diagrams.net" modified="2026-03-28" agent="Claude" version="21.0.0">
+  <diagram name="TLS 구간 한계" id="tls-hop-by-hop">
+    <mxGraphModel dx="1422" dy="762" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="850" pageHeight="1100" math="0" shadow="0">
+      <root>
+        <mxCell id="0" />
+        <mxCell id="1" parent="0" />
+
+        <!-- 에이전트 서버 -->
+        <mxCell id="2" value="&lt;b&gt;에이전트 서버&lt;/b&gt;" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#dae8fc;strokeColor=#6c8ebf;fontStyle=0;fontSize=13;" vertex="1" parent="1">
+          <mxGeometry x="280" y="60" width="200" height="60" as="geometry" />
+        </mxCell>
+
+        <!-- TLS 구간 1 화살표 -->
+        <mxCell id="3" value="TLS 암호화 (구간 1)" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;exitX=0.5;exitY=1;exitDx=0;exitDy=0;entryX=0.5;entryY=0;entryDx=0;entryDy=0;fontSize=11;fontStyle=1;" edge="1" source="2" target="4" parent="1">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+
+        <!-- 리버스 프록시 / CDN -->
+        <mxCell id="4" value="&lt;b&gt;리버스 프록시 / CDN&lt;/b&gt;" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffe6cc;strokeColor=#d6b656;fontSize=13;" vertex="1" parent="1">
+          <mxGeometry x="280" y="230" width="200" height="60" as="geometry" />
+        </mxCell>
+
+        <!-- 위변조 경고 박스 -->
+        <mxCell id="5" value="⚠ TLS 종료 후 재수립&#xa;이 구간에서 Agent Card 위변조 가능" style="text;html=1;strokeColor=#FF0000;fillColor=#FFE6E6;align=left;verticalAlign=middle;spacingLeft=8;spacingRight=8;fontSize=11;rounded=1;" vertex="1" parent="1">
+          <mxGeometry x="510" y="218" width="240" height="55" as="geometry" />
+        </mxCell>
+
+        <!-- 경고 박스 연결선 -->
+        <mxCell id="9" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;exitX=0;exitY=0.5;exitDx=0;exitDy=0;entryX=1;entryY=0.5;entryDx=0;entryDy=0;strokeColor=#FF0000;dashed=1;" edge="1" source="5" target="4" parent="1">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+
+        <!-- TLS 구간 2 화살표 -->
+        <mxCell id="6" value="TLS 암호화 (구간 2)" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;exitX=0.5;exitY=1;exitDx=0;exitDy=0;entryX=0.5;entryY=0;entryDx=0;entryDy=0;fontSize=11;fontStyle=1;" edge="1" source="4" target="7" parent="1">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+
+        <!-- 클라이언트 에이전트 -->
+        <mxCell id="7" value="&lt;b&gt;클라이언트 에이전트&lt;/b&gt;" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#dae8fc;strokeColor=#6c8ebf;fontSize=13;" vertex="1" parent="1">
+          <mxGeometry x="280" y="400" width="200" height="60" as="geometry" />
+        </mxCell>
+
+        <!-- 하단 경고 텍스트 -->
+        <mxCell id="8" value="※ 수신 내용이 원본과 다른지 탐지 불가" style="text;html=1;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;fontSize=11;fontStyle=2;" vertex="1" parent="1">
+          <mxGeometry x="200" y="480" width="360" height="30" as="geometry" />
+        </mxCell>
+
+      </root>
+    </mxGraphModel>
+  </diagram>
+</mxfile>
