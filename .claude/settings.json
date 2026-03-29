@@ -1,7 +1,24 @@
 {
   "permissions": {
     "allow": [
-      "WebFetch(domain:github.com)"
+      "WebFetch(domain:github.com)",
+      "WebFetch(domain:arxiv.org)",
+      "WebFetch(domain:portswigger.net)",
+      "WebFetch(domain:a2a-protocol.org)",
+      "WebFetch(domain:datatracker.ietf.org)",
+      "WebFetch(domain:jose.readthedocs.io)",
+      "WebFetch(domain:security.stackexchange.com)",
+      "Bash(git add:*)",
+      "Bash(git commit:*)",
+      "Bash(py -c \"import jwt; print\\(jwt.__version__\\)\")",
+      "Bash(py -c \"import cryptography; print\\(cryptography.__version__\\)\")",
+      "Bash(PYTHON=\"/c/Users/USER/A2A/a2a-python/.venv/Scripts/python.exe\")",
+      "Bash($PYTHON -c \"import jwt; print\\(''PyJWT:'', jwt.__version__\\)\")",
+      "Bash($PYTHON -c \"import cryptography; print\\(''cryptography:'', cryptography.__version__\\)\")",
+      "Bash($PYTHON -c \"import a2a; print\\(''a2a-sdk OK''\\)\")",
+      "Bash(.venv/Scripts/python.exe -c \":*)",
+      "Bash(.venv/Scripts/python.exe experiments/agent_card/jws_sign_verify.py)",
+      "Bash(PYTHONIOENCODING=utf-8 .venv/Scripts/python.exe experiments/agent_card/jws_sign_verify.py)"
     ]
   }
 }

@@ -55,6 +55,19 @@ push_sender = SecurePushNotificationSender(
 #### `secure_webhook_receiver.py`
 JWT를 검증하는 FastAPI 기반 webhook 수신 서버 (port 8000)
 
+검증 로직은 `SecureWebhookReceiver` 클래스에 캡슐화되어 있으며, `ReceiverConfig` dataclass로 설정을 주입합니다.
+
+```python
+@dataclass
+class ReceiverConfig:
+    signing_key_env: str = 'A2A_PUSH_JWT_SECRET'
+    expected_iss: str    = 'agentB'
+    expected_aud: str    = 'agentA-webhook'
+    alg: str             = 'HS256'
+    clock_skew_sec: int  = 30
+    jti_ttl_sec: int     = 300
+```
+
 | 엔드포인트 | 설명 | 방어 수준 |
 |---|---|:---:|
 | `POST /webhook-plain` | 인증 없이 수락 | 방식 (1) |
@@ -63,7 +76,7 @@ JWT를 검증하는 FastAPI 기반 webhook 수신 서버 (port 8000)
 | `POST /webhook` | JWT + task_id 서명-시점 바인딩 **(제안 방식)** | 방식 (4) |
 | `GET /health` | 서버 상태 및 구독 목록 확인 | — |
 
-`/webhook` (제안 방식) 검증 흐름:
+`/webhook` (제안 방식) 검증 흐름 (`SecureWebhookReceiver.verify()`):
 ```
 POST /webhook
     ├─ ① Authorization: Bearer 헤더 확인
@@ -104,14 +117,21 @@ POST /webhook
 
 - `make_task(task_id, text)` — A2A `Task` 객체 생성
 - `make_sender(client, webhook_url, task_id, ttl)` — `SecurePushNotificationSender` 인스턴스 생성 (config_store 설정 포함)
-- `check(label, status, expected)` — HTTP 응답 코드 검증 및 결과 출력
+- `check(label, response, expected_status, detail_contains)` — HTTP 상태 코드 + 응답 JSON의 `detail` 필드를 함께 검증. `detail_contains`는 선택적이며 None이면 detail 검증을 생략합니다.
 
-`test_security_cases.py`와 `test_comparative_misbinding.py`의 `make_task` / `make_sender` 의존성을 제공합니다.
+`test_security_cases.py`, `test_comparative_misbinding.py`, `test_acceptance_rate.py`의 공통 의존성입니다.
 
 #### `test_performance.py`
-기존 방식 vs 제안 방식 지연시간 비교 (N=200회 반복)
+기존 방식 vs 제안 방식 지연시간 비교 (N=1000회 반복)
 
-측정 결과 (로컬호스트, N=200):
+세 가지를 측정합니다:
+1. **기존 방식** — `BasePushNotificationSender` → `/webhook-plain` (인증 없음)
+2. **제안 방식** — `SecurePushNotificationSender` → `/webhook` (JWT 6단계 검증)
+3. **JWT 서명 단독** — HTTP 송수신 없이 `_make_jwt()` 연산만 측정
+
+출력 통계: 평균, 중앙값, 표준편차, **p95**, **p99**, 최소, 최대
+
+측정 결과 (로컬호스트, N=200 기준):
 
 | 방식 | 평균 | 중앙값 | 표준편차 |
 |---|---|---|---|
@@ -121,6 +141,30 @@ POST /webhook
 
 JWT 생성(HMAC-SHA256 + UUID)은 CPU 연산이므로 네트워크 왕복 시간 대비 미미하며,
 절대 오버헤드 0.17 ms는 실용적 배포에서 무시 가능한 수준입니다.
+
+#### `test_acceptance_rate.py`  ← **논문 §4.2 정량 검증 실험**
+기존 SDK vs 제안 방식에 변형 1·2 공격을 N회 반복 전송하여 **공격 수락률**을 정량 비교합니다.
+
+**실험 설계:**
+- 구독 태스크: `task-001`
+- 공격 태스크: `task-002`, `task-003`, `task-999` (3종 × `N_REPEAT`회)
+
+| 수신자 구현 | 변형 1 수락률 | 변형 2 수락률 |
+|:---|:---:|:---:|
+| 기존(인증없음) `/webhook-plain` | **100%** | N/A |
+| 기존(JWT서명만) `/webhook-jwt-notask` | **100%** | **100%** |
+| 제안(6단계) `/webhook` | **0%** | **0%** |
+
+기대 출력 요약:
+```
+[ 논문 결론 ]
+  기존 SDK 수락률: 변형1=100%  변형2=100%
+  제안 방식 수락률: 변형1=0%  변형2=0%
+
+[OK] 기존 100% 수락 / 제안 0% 수락 - 논문 주장 실험 검증 완료
+```
+
+> **필수 환경변수:** `A2A_PUSH_JWT_SECRET`, `A2A_PUSH_SUBSCRIBED_TASKS=task-001`
 
 #### `run_agent_server.py`
 `SecurePushNotificationSender`를 연동한 HelloWorld 에이전트 서버 (port 9999)
@@ -223,24 +267,40 @@ Task Misbinding 공격 — 4가지 방어 방식 비교 실험
 uv run python -m experiments.push_notification.test_security_cases
 ```
 
-### 3. 성능 오버헤드 측정
+### 3. 공격 수락률 비교 실험 (정량 검증)
+
+```bash
+# A2A_PUSH_SUBSCRIBED_TASKS=task-001 설정 필수
+uv run python -m experiments.push_notification.test_acceptance_rate
+```
+
+### 4. 성능 오버헤드 측정
 
 ```bash
 uv run python -m experiments.push_notification.test_performance
 ```
 
-기대 출력 (N=200, 로컬호스트):
+기대 출력 (N=1000, 로컬호스트):
 ```
-[기존 방식 (BasePushNotificationSender)] n=200
-  평균:   0.92 ms  중앙값: 0.90 ms  표준편차: 0.34 ms
+[기존 방식 (BasePushNotificationSender)] n=1000
+  평균:     0.92 ms
+  중앙값:   0.90 ms
+  표준편차: 0.34 ms
+  p95:      ...
+  p99:      ...
 
-[제안 방식 (SecurePushNotificationSender + JWT)] n=200
-  평균:   1.09 ms  중앙값: 1.07 ms  표준편차: 0.16 ms
+[제안 방식 (SecurePushNotificationSender + JWT)] n=1000
+  평균:     1.09 ms
+  중앙값:   1.07 ms
+  표준편차: 0.16 ms
 
-오버헤드: +0.17 ms / 요청 (18.0%)
+[JWT 서명 단독 (HMAC-SHA256 + UUID 생성)] n=1000
+  ...
+
+전체 오버헤드: +0.17 ms / 요청 (18.0%)
 ```
 
-### 4. 통합 흐름 확인 (에이전트 → Webhook 실제 전송)
+### 5. 통합 흐름 확인 (에이전트 → Webhook 실제 전송)
 
 ```bash
 # 터미널 2: Agent Server
