@@ -18,7 +18,8 @@
       "Bash($PYTHON -c \"import a2a; print\\(''a2a-sdk OK''\\)\")",
       "Bash(.venv/Scripts/python.exe -c \":*)",
       "Bash(.venv/Scripts/python.exe experiments/agent_card/jws_sign_verify.py)",
-      "Bash(PYTHONIOENCODING=utf-8 .venv/Scripts/python.exe experiments/agent_card/jws_sign_verify.py)"
+      "Bash(PYTHONIOENCODING=utf-8 .venv/Scripts/python.exe experiments/agent_card/jws_sign_verify.py)",
+      "WebSearch"
     ]
   }
 }
