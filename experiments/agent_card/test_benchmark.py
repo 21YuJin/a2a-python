@@ -30,7 +30,7 @@ from experiments.agent_card.test_helpers import (
 )
 
 N_TRIALS = 1000
-N_TAMPER = 500
+N_TAMPER = 1000
 
 
 # ── 통계 출력 ─────────────────────────────────────────────────────────────────
@@ -153,7 +153,7 @@ def _make_card_with_n_skills(n: int, url: str = "https://agent.example.com") -> 
 
 
 def bench_complexity(signer, verifier) -> None:
-    N = 200  # 복잡도 실험은 200회로 충분
+    N = N_TRIALS
     skill_counts = [1, 10, 50, 100]
 
     print(f"\n[실험 6] 카드 복잡도(스킬 수)별 성능 비교  (N={N}/조건)")
