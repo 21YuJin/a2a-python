@@ -14,7 +14,7 @@ dependencies = [
   "protobuf>=5.29.5",
   "google-api-core>=1.26.0",
   "python-dotenv>=1.2.2",
-  "pyjwt>=2.11.0",
+  "pyjwt>=2.0.0",
 ]
 
 classifiers = [
