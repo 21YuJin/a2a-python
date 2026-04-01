@@ -115,14 +115,14 @@ def bench_false_positive(signer, verifier) -> None:
 # ── 실험 5: 서명 없는 카드 처리 ───────────────────────────────────────────────
 
 def bench_unsigned_card(verifier) -> None:
-    print(f"\n[실험 5] 서명 없는 카드 거부  (N=100)")
+    print(f"\n[실험 5] 서명 없는 카드 거부  (N={N_TAMPER})")
     rejected = 0
-    for _ in range(100):
+    for _ in range(N_TAMPER):
         card = make_agent_card()  # signatures=None
         ok, reason = verify_card(card, verifier)
         if not ok and reason == "서명 없음":
             rejected += 1
-    print(f"  ✅ 서명 없는 카드 거부: {rejected}/100")
+    print(f"  ✅ 서명 없는 카드 거부: {rejected}/{N_TAMPER}")
 
 
 # ── 실험 6: 카드 복잡도(스킬 수)별 성능 비교 ────────────────────────────────
